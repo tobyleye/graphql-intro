@@ -92,6 +92,37 @@ const mutation = new GraphQLObjectType({
           .then((res) => res.data);
       },
     },
+    deleteUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(_, args) {
+        return jsonClient.delete(`/users/${args.id}`).then((res) => {
+          console.log('deleting user ->', res.data);
+          return res.data
+        });
+      },
+    },
+
+    editUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+        firstName: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        companyId: { type: GraphQLString }
+      },
+      resolve(_, { id, firstName, age }) {
+   
+        let body = Object.entries({ firstName, age }).reduce((acc, [k, v]) => {
+          if(v !== null && v !== '' && v !== undefined ) acc[k] = v;
+          return acc;
+        }, {})
+
+        return jsonClient.patch(`/users/${id}`, body).then(res => res.data)
+      }
+    }
   },
 });
 
